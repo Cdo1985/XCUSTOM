@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)https://cdo1985.github.io/Footystats/ -->
+<html lang="en"><script src="chrome-extension://ablmompanofnodfdkgchkpmphailefpb/addToWindow.js"></script><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="injectedScript" src="chrome-extension://hpclkefagolihohboafpheddmmgdffjm/pageProvider.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFL Stats Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #0c4a6e 50%, #0f172a 100%);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+            padding: 24px 16px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: #dbeafe;
+        }
+
+        .add-btn {
+            background: white;
+            color: #2563eb;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-btn:hover {
+            background: #f0f9ff;
+            transform: scale(1.1);
+        }
+
+        .add-btn:active {
+            transform: scale(0.95);
+        }
+
+        .add-form {
+            background: #f0f9ff;
+            border-bottom: 2px solid #bfdbfe;
+            padding: 16px;
+            display: flex;
+            gap: 8px;
+            display: none;
+        }
+
+        .add-form.show {
+            display: flex;
+        }
+
+        .add-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #60a5fa;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .add-form input:focus {
+            border-color: #2563eb;
+        }
+
+        .add-form button {
+            padding: 12px 24px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-form button:hover {
+            background: #1d4ed8;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 32px 16px;
+            overflow-y: auto;
+            max-width: 42rem;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 16px;
+            color: #dbeafe;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .empty-subtext {
+            font-size: 14px;
+            color: #bfdbfe;
+        }
+
+        .kids-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .kid-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .kid-card:hover {
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .kid-header {
+            background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+
+        .kid-name {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 0, 0, 0.3);
+        }
+
+        .stats-grid {
+            padding: 24px;
+        }
+
+        .stat-input-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-column {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 24px;
+            font-weight: 900;
+            text-align: center;
+            border: 2px solid;
+            border-radius: 8px;
+            outline: none;
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+        }
+
+        .stat-input:focus {
+            transform: scale(1.05);
+        }
+
+        .stat-name {
+            font-size: 12px;
+            color: #4b5563;
+            font-weight: 600;
+        }
+
+        .totals-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .totals-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+        }
+
+        .total-box {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 18px;
+            text-align: center;
+        
+        }
+        /* Responsive stat grid for ALL devices */
+.stat-input-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.totals-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .stat-input-grid,
+    .totals-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .stat-input-grid,
+    .totals-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Extra small/mobile portrait */
+@media (max-width: 420px) {
+    .stat-input-grid,
+    .totals-grid {
+        grid-template-columns: 1fr;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="header-title">AFL STATS</div>
+                <div class="header-subtitle" id="yearDisplay">2026 Season</div>
+            </div>
+        </div>
+        <button class="add-btn" onclick="toggleAddForm()">+</button>
+    </div>
+
+    <div class="add-form" id="addForm">
+        <input type="text" id="playerNameInput" placeholder="Enter player name..." onkeypress="if(event.key===&#39;Enter&#39;) addPlayer()">
+        <button onclick="addPlayer()">Add</button>
+    </div>
+
+    <div class="main-content">
+        <div id="content">
+                    <div class="empty-state">
+                        <div class="empty-icon">✍️🏉🥇💾</div>
+                        <p class="empty-text">No players yet</p>
+                        <p class="empty-subtext">Tap the + button to add a player</p>
+                    </div>
+                </div>
+    </div>
+
+    <script>
+        const statLabels = {
+            G: { label: 'Goals', color: '#DC2626' },
+            B: { label: 'Behinds', color: '#F59E0B' },
+            M: { label: 'Marks', color: '#3B82F6' },
+            T: { label: 'Tackles', color: '#10B981' },
+            K: { label: 'Kicks', color: '#800080' },
+            H: { label: 'Handballs', color: '#008000' },
+            A: { label: 'Assists', color: '#8B5CF6' }
+        };
+
+        const currentYear = new Date().getFullYear();
+        let kids = [];
+
+        // Load data
+        function loadData() {
+            const stored = localStorage.getItem('afl-kids');
+            if (stored) {
+                try {
+                    kids = JSON.parse(stored);
+                } catch (e) {
+                    kids = [];
+                }
+            }
+            document.getElementById('yearDisplay').textContent = `${currentYear} Season`;
+            render();
+        }
+
+        // Save data
+        function saveData() {
+            localStorage.setItem('afl-kids', JSON.stringify(kids));
+            render();
+        }
+
+        // Toggle add form
+        function toggleAddForm() {
+            const form = document.getElementById('addForm');
+            form.classList.toggle('show');
+            if (form.classList.contains('show')) {
+                document.getElementById('playerNameInput').focus();
+            }
+        }
+
+        // Add player
+        function addPlayer() {
+            const nameInput = document.getElementById('playerNameInput');
+            const name = nameInput.value.trim();
+            
+            if (name) {
+                kids.push({
+                    id: Date.now(),
+                    name: name,
+                    year: currentYear,
+                    stats: { G: 0, B: 0, M: 0, T: 0, K: 0, H: 0, A: 0 }
+                });
+                saveData();
+                nameInput.value = '';
+                document.getElementById('addForm').classList.remove('show');
+            }
+        }
+
+        // Update stat
+        function updateStat(kidId, stat, value) {
+            const kid = kids.find(k => k.id === kidId);
+            if (kid) {
+                kid.stats[stat] = Math.max(0, parseInt(value) || 0);
+                saveData();
+            }
+        }
+
+        // Delete player
+        function deletePlayer(kidId) {
+            kids = kids.filter(k => k.id !== kidId);
+            saveData();
+        }
+
+        // Render
+        function render() {
+            const contentDiv = document.getElementById('content');
+            
+            if (kids.length === 0) {
+                contentDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✍️🏉🥇💾</div>
+                        <p class="empty-text">No players yet</p>
+                        <p class="empty-subtext">Tap the + button to add a player</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="kids-list">';
+            
+            kids.forEach(kid => {
+                html += `
+                    <div class="kid-card">
+                        <div class="kid-header">
+                            <h2 class="kid-name">${escapeHtml(kid.name)}</h2>
+                            <button class="delete-btn" onclick="deletePlayer(${kid.id})">❌</button>
+                        </div>
+                        <div class="stats-grid">
+                            <div class="stat-input-grid">
+                `;
+
+                ['G', 'B', 'M', 'T', 'K', 'H', 'A'].forEach(stat => {
+                    const label = statLabels[stat];
+                    html += `
+                        <div class="stat-column">
+                            <label class="stat-label">${stat}</label>
+                            <input 
+                                type="number" 
+                                min="0" 
+                                value="${kid.stats[stat]}"
+                                onchange="updateStat(${kid.id}, '${stat}', this.value)"
+                                class="stat-input"
+                                style="border-color: ${label.color}; color: ${label.color};"
+                            >
+                            <p class="stat-name">${label.label}</p>
+                        </div>
+                    `;
+                });
+
+                html += `
+                            </div>
+                            <div class="totals-section">
+                                <p class="totals-label">${currentYear} Totals</p>
+                                <div class="totals-grid">
+                `;
+
+                ['G', 'B', 'M', 'T', 'K', 'H', 'A'].forEach(stat => {
+                    const label = statLabels[stat];
+                    html += `
+                        <div class="total-box" style="background-color: ${label.color}15; color: ${label.color};">
+                            ${kid.stats[stat]}
+                        </div>
+                    `;
+                });
+
+                html += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            contentDiv.innerHTML = html;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Initialize
+        loadData();
+    </script>
+
+
+<script type="text/javascript" src="chrome-extension://hpclkefagolihohboafpheddmmgdffjm/script.js"></script></body></html>
